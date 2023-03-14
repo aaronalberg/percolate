@@ -2,16 +2,21 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 
-
 import 'package:sqflite/sqflite.dart';
 
 class Task {
-  String title;
-  String description;
-  String category;
+  final String title;
+  final String description;
+  final String category;
 
-  Task(
+  const Task(
       {required this.title, required this.description, required this.category});
+
+  Task.copy(Task from) :
+    title = from.title,
+    description = from.description,
+    category = from.category;
+
 
   Map<String, dynamic> toMap() {
     return {
@@ -34,9 +39,7 @@ class TaskProvider {
   static const String columnCategory = 'category';
 
   static Future<sql.Database> database() async {
-    return openDatabase(
-        join(await getDatabasesPath(), 'tasks.db'),
-        version: 1,
+    return openDatabase(join(await getDatabasesPath(), 'tasks.db'), version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
           'CREATE TABLE tasks(title TEXT PRIMARY KEY, description TEXT, category TEXT)');
@@ -67,43 +70,40 @@ class TaskProvider {
     });
   }
 
-  // Future<Task> getTask(int id) async {
-  //   final db = await database();
-  //   List<Map> maps = await db.query(tableName,
-  //       columns: [columnId, columnTitle, columnCategory, columnDescription],
-  //       where: '$columnId = ?',
-  //       whereArgs: [id]);
-  //   if (maps.length > 0) {
-  //     return Task.fromMap(maps.first);
-  //   }
-  //   return null;
-  // }
+  Future<Task?> getTask(String title) async {
+    final db = await database();
+    List<Map> maps = await db.query(tableName,
+        columns: [columnTitle, columnCategory, columnDescription],
+        where: '$columnTitle = ?',
+        whereArgs: [title]);
+    if (maps.length > 0) {
+      Map map = maps.first;
+      return Task(
+          title: map[columnTitle],
+          description: columnDescription,
+          category: columnCategory);
+    }
+    return null;
+  }
 
   static Future<void> updateTask(Task task) async {
-    // Get a reference to the database.
     final db = await database();
 
-    // Update the given Dog.
     await db.update(
       tableName,
       task.toMap(),
-      // Ensure that the Dog has a matching id.
       where: 'title = ?',
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [task.title],
     );
   }
 
   static Future<void> deleteTask(String title) async {
-    // Get a reference to the database.
     final db = await database();
 
-    // Remove the Dog from the database.
     await db.delete(
       tableName,
-      // Use a `where` clause to delete a specific dog.
       where: 'title = ?',
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      // Pass the id as a whereArg to prevent SQL injection.
       whereArgs: [title],
     );
   }

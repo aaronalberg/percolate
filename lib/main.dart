@@ -19,7 +19,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Percolate',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -56,7 +56,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   Icon matchCatToIcon(String cat) {
     switch (cat) {
       case "Friend":
@@ -69,66 +68,61 @@ class _HomePageState extends State<HomePage> {
         return Icon(Icons.lightbulb);
     }
   }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: FutureBuilder<List<Task>>(
           future: TaskProvider.getAllTasks(),
           builder: (context, snapshot) {
-            print("ABC");
             if (snapshot.connectionState == ConnectionState.done) {
-              print("DEF");
               // future complete
               if (snapshot.hasError || !snapshot.hasData) {
                 return Center(child: CircularProgressIndicator());
               }
-              print("GHI");
               // future complete with no error and has data
               List<Task> entries = snapshot.requireData;
               return entries.length > 0
                   ? ListView.builder(
-                itemCount: entries.length,
-                itemBuilder: (BuildContext context, int index) {
-                  Task current = entries[index];
-                  return Card(
-                      color: index % 2 == 0 ? Colors.white60 : Colors.white70,
-                      child: ListTile(
-                        leading: matchCatToIcon(current.category),
-                        title: Text('Item ${current.title}'),
-                        subtitle: Text(current.description),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete),
-                          color: Colors.red,
-                          onPressed: () {
-                            TaskProvider.deleteTask(current.title).then((value) {
-                              setState(() {
-
+                      itemCount: entries.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Task current = entries[index];
+                        return Card(
+                          color:
+                              index % 2 == 0 ? Colors.white60 : Colors.white70,
+                          child: ListTile(
+                            leading: matchCatToIcon(current.category),
+                            title: Text(current.title),
+                            subtitle: Text(current.description),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              color: Colors.red,
+                              onPressed: () {
+                                TaskProvider.deleteTask(current.title)
+                                    .then((value) {
+                                  setState(() {});
+                                });
+                              },
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => TaskCreate(
+                                      currentTask:
+                                        current)),
+                              ).then((value) {
+                                setState(() {});
                               });
-                            });
-                          },
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const TaskCreate()),
-                          );
-                        },
-                      ),
-                  );
-                },
-              )
-                  : const Center(child: Text('No items'));
+                            },
+                          ),
+                        );
+                      },
+                    )
+                  : const Center(child: Text('Add a task!'));
             }
             // return loading widget while connection state is active
             else {
@@ -139,14 +133,14 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const TaskCreate()),
+            MaterialPageRoute(
+                builder: (context) => TaskCreate(
+                    currentTask: null)),
           ).then((value) {
-            setState(() {
-
-            });
+            setState(() {});
           });
         },
-        tooltip: 'Increment',
+        tooltip: 'Add new task',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

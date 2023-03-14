@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:percolate/task.dart';
 import 'package:sqflite/sqflite.dart';
 
-
-enum Category {
-  Work, Home, Friend, Misc
-}
+enum Category { Work, Home, Friend, Misc }
 
 class TaskCreate extends StatefulWidget {
-  const TaskCreate({super.key});
+  TaskCreate({super.key, required this.currentTask});
+
+  final Task? currentTask;
 
   @override
   State<TaskCreate> createState() => _TaskCreateState();
@@ -20,9 +19,26 @@ class _TaskCreateState extends State<TaskCreate> {
   String _titleInput = '';
   String _descInput = '';
 
+  Category? matchCategory(String? toMatch) {
+    switch (toMatch) {
+      case "Friend":
+        return Category.Friend;
+      case "Work":
+        return Category.Work;
+      case "Home":
+        return Category.Home;
+      case "Misc":
+        return Category.Misc;
+      default:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // print(widget.currentTask ?? "NULL TASK");
+    _selectedCategory = matchCategory(widget.currentTask?.category);
+
     return Scaffold(
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
@@ -35,6 +51,8 @@ class _TaskCreateState extends State<TaskCreate> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
+                readOnly: widget.currentTask != null,
+                initialValue: widget.currentTask?.title,
                 onSaved: (value) {
                   setState(() {
                     _titleInput = value ?? '';
@@ -48,9 +66,11 @@ class _TaskCreateState extends State<TaskCreate> {
                   return null;
                 },
                 decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(10.0), hintText: 'Task Title'),
+                    contentPadding: EdgeInsets.all(10.0),
+                    hintText: 'Task Title'),
               ),
               TextFormField(
+                initialValue: widget.currentTask?.description,
                 onSaved: (value) {
                   setState(() {
                     _descInput = value ?? '';
@@ -114,13 +134,14 @@ class _TaskCreateState extends State<TaskCreate> {
                       // );
 
                       _formKey.currentState?.save();
-
-                      TaskProvider.insertTask(Task(
-                        title: _titleInput,
-                        description: _descInput,
-                        category: _selectedCategory?.name ?? ''
-                      ));
-                      Navigator.pop(context, true);
+                      Task toInsert = Task(
+                          title: _titleInput,
+                          description: _descInput,
+                          category: _selectedCategory?.name ?? '');
+                      print("INSERTING: ${toInsert}");
+                      TaskProvider.insertTask(toInsert).then((value) =>
+                        Navigator.pop(context, true)
+                      );
                     }
                   },
                   child: const Text('Submit'),

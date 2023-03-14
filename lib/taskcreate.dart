@@ -5,9 +5,11 @@ import 'package:sqflite/sqflite.dart';
 enum Category { Work, Home, Friend, Misc }
 
 class TaskCreate extends StatefulWidget {
-  TaskCreate({super.key, required this.currentTask});
+  TaskCreate(
+      {super.key, required this.currentTask, required this.existingTasks});
 
   final Task? currentTask;
+  final List<Task> existingTasks;
 
   @override
   State<TaskCreate> createState() => _TaskCreateState();
@@ -62,6 +64,12 @@ class _TaskCreateState extends State<TaskCreate> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter some text';
+                  }
+                  for (final task in widget.existingTasks) {
+                    if (task.title == value &&
+                        task.title != widget.currentTask?.title) {
+                      return 'Title already in use';
+                    }
                   }
                   return null;
                 },
@@ -139,9 +147,8 @@ class _TaskCreateState extends State<TaskCreate> {
                           description: _descInput,
                           category: _selectedCategory?.name ?? '');
                       print("INSERTING: ${toInsert}");
-                      TaskProvider.insertTask(toInsert).then((value) =>
-                        Navigator.pop(context, true)
-                      );
+                      TaskProvider.insertTask(toInsert)
+                          .then((value) => Navigator.pop(context, true));
                     }
                   },
                   child: const Text('Submit'),

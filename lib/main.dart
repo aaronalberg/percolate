@@ -69,6 +69,21 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void changePage(BuildContext context, Task? current, List<Task> entries) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => TaskCreate(
+                currentTask: current,
+                existingTasks: entries,
+              )),
+    ).then((value) {
+      setState(() {});
+    });
+  }
+
+  List<Task> _allTasks = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +100,7 @@ class _HomePageState extends State<HomePage> {
               }
               // future complete with no error and has data
               List<Task> entries = snapshot.requireData;
+              _allTasks = entries;
               return entries.length > 0
                   ? ListView.builder(
                       itemCount: entries.length,
@@ -108,15 +124,7 @@ class _HomePageState extends State<HomePage> {
                               },
                             ),
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => TaskCreate(
-                                      currentTask:
-                                        current)),
-                              ).then((value) {
-                                setState(() {});
-                              });
+                              changePage(context, current, entries);
                             },
                           ),
                         );
@@ -131,14 +139,7 @@ class _HomePageState extends State<HomePage> {
           }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => TaskCreate(
-                    currentTask: null)),
-          ).then((value) {
-            setState(() {});
-          });
+          changePage(context, null, _allTasks);
         },
         tooltip: 'Add new task',
         child: const Icon(Icons.add),

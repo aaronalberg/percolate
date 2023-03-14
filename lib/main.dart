@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'task.dart';
 import 'taskcreate.dart';
 import 'dart:async';
+import 'helpers.dart';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -56,18 +57,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Icon matchCatToIcon(String cat) {
-    switch (cat) {
-      case "Friend":
-        return Icon(Icons.people);
-      case "Home":
-        return Icon(Icons.house);
-      case "Work":
-        return Icon(Icons.work);
-      default:
-        return Icon(Icons.lightbulb);
-    }
-  }
 
   void changePage(BuildContext context, Task? current, List<Task> entries) {
     Navigator.push(

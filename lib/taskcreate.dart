@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:percolate/task.dart';
 import 'package:sqflite/sqflite.dart';
+import 'helpers.dart';
 
 enum Category { Work, Home, Friend, Misc }
 
@@ -53,6 +54,7 @@ class _TaskCreateState extends State<TaskCreate> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
+                textCapitalization: TextCapitalization.words,
                 readOnly: widget.currentTask != null,
                 initialValue: widget.currentTask?.title,
                 onSaved: (value) {
@@ -63,7 +65,7 @@ class _TaskCreateState extends State<TaskCreate> {
                 // The validator receives the text that the user has entered.
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter some text';
+                    return 'Please enter a title';
                   }
                   for (final task in widget.existingTasks) {
                     if (task.title == value &&
@@ -78,6 +80,7 @@ class _TaskCreateState extends State<TaskCreate> {
                     hintText: 'Task Title'),
               ),
               TextFormField(
+                textCapitalization: TextCapitalization.sentences,
                 initialValue: widget.currentTask?.description,
                 onSaved: (value) {
                   setState(() {
@@ -87,7 +90,7 @@ class _TaskCreateState extends State<TaskCreate> {
                 // The validator receives the text that the user has entered.
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter some text';
+                    return 'Please enter a description';
                   }
                   return null;
                 },
@@ -123,8 +126,18 @@ class _TaskCreateState extends State<TaskCreate> {
                 items: Category.values.map((Category cat) {
                   return DropdownMenuItem(
                     value: cat,
-                    child: Text(
-                      cat.name,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                              child: matchCatToIcon(cat.name)
+                          ),
+                          TextSpan(
+                            text: "   ${cat.name}",
+                          ),
+
+                        ]
+                      )
                     ),
                   );
                 }).toList(),

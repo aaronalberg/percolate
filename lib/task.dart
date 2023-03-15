@@ -1,10 +1,20 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart' as sql;
-
 import 'package:sqflite/sqflite.dart';
+import 'helpers.dart';
 
-class Task {
+abstract class TaskListItem {
+  const TaskListItem();
+}
+
+class TaskListHeader extends TaskListItem {
+  final Category category;
+
+  const TaskListHeader(this.category);
+}
+
+class Task extends TaskListItem{
   final String title;
   final String description;
   final String category;
@@ -80,8 +90,8 @@ class TaskProvider {
       Map map = maps.first;
       return Task(
           title: map[columnTitle],
-          description: columnDescription,
-          category: columnCategory);
+          description: map[columnDescription],
+          category: map[columnCategory]);
     }
     return null;
   }

@@ -3,6 +3,7 @@ import 'task.dart';
 import 'taskcreate.dart';
 import 'dart:async';
 import 'helpers.dart';
+import 'alltasksview.dart';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -57,7 +58,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   void changePage(BuildContext context, Task? current, List<Task> entries) {
     Navigator.push(
       context,
@@ -69,6 +69,10 @@ class _HomePageState extends State<HomePage> {
     ).then((value) {
       setState(() {});
     });
+  }
+
+  refresh() {
+    setState(() {});
   }
 
   List<Task> _allTasks = [];
@@ -91,35 +95,15 @@ class _HomePageState extends State<HomePage> {
               List<Task> entries = snapshot.requireData;
               _allTasks = entries;
               return entries.length > 0
-                  ? ListView.builder(
-                      itemCount: entries.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        Task current = entries[index];
-                        return Card(
-                          color:
-                              index % 2 == 0 ? Colors.white60 : Colors.white70,
-                          child: ListTile(
-                            leading: matchCatToIcon(current.category),
-                            title: Text(current.title),
-                            subtitle: Text(current.description),
-                            trailing: IconButton(
-                              icon: Icon(Icons.delete),
-                              color: Colors.red,
-                              onPressed: () {
-                                TaskProvider.deleteTask(current.title)
-                                    .then((value) {
-                                  setState(() {});
-                                });
-                              },
-                            ),
-                            onTap: () {
-                              changePage(context, current, entries);
-                            },
-                          ),
-                        );
-                      },
+                  ? AllTasksView(
+                      allTasks: entries,
+                      notifyParent: refresh,
                     )
-                  : const Center(child: Text('Add a task!'));
+                  : const Center(
+                      child: Text(
+                      'Add a task!',
+                      style: TextStyle(fontSize: 30),
+                    ));
             }
             // return loading widget while connection state is active
             else {

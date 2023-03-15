@@ -3,7 +3,6 @@ import 'package:percolate/task.dart';
 import 'package:sqflite/sqflite.dart';
 import 'helpers.dart';
 
-enum Category { Work, Home, Friend, Misc }
 
 class TaskCreate extends StatefulWidget {
   TaskCreate(
@@ -24,8 +23,8 @@ class _TaskCreateState extends State<TaskCreate> {
 
   Category? matchCategory(String? toMatch) {
     switch (toMatch) {
-      case "Friend":
-        return Category.Friend;
+      case "Friends":
+        return Category.Friends;
       case "Work":
         return Category.Work;
       case "Home":
@@ -130,7 +129,7 @@ class _TaskCreateState extends State<TaskCreate> {
                       TextSpan(
                         children: [
                           WidgetSpan(
-                              child: matchCatToIcon(cat.name)
+                              child: matchCatStringToIcon(cat.name)
                           ),
                           TextSpan(
                             text: "   ${cat.name}",
